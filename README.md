@@ -1,3 +1,14 @@
-# Northcoders News API
+# NorthCoders' News API by Mohsin Kaduji
 
-For instructions, please head over to [L2C NC News](https://l2c.northcoders.com/courses/be/nc-news).
+Note: In addition to the instructions provided in this software developer package, follow the following instructions to create two more files in the root folder.
+
+Please follow the instructions below in order...
+- Please create two files named exactly as below in the root folder (called be-nc-news)
+
+ .env.development
+ .env.test
+
+- add the following line into the development file
+    PGDATABASE=nc_news
+- add the following line into the test file
+    PGDATABASE=nc_news_test
