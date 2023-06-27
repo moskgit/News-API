@@ -36,3 +36,37 @@ describe("GET /api/", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id", () => {
+  test("200: respond with JSON object of all /api/articles/:article_id endpoints", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        const {articles} = body;
+
+        articles.forEach((articles) => {
+          expect(articles).toHaveProperty("article_id", expect.any(Number));
+          expect(articles).toHaveProperty("title", expect.any(String));
+          expect(articles).toHaveProperty("topic", expect.any(String));
+          expect(articles).toHaveProperty("author", expect.any(String));
+          expect(articles).toHaveProperty("body", expect.any(String));
+          expect(articles).toHaveProperty("created_at", expect.any(String));
+          expect(articles).toHaveProperty("votes", expect.any(Number));
+          expect(articles).toHaveProperty("article_img_url", expect.any(String));
+        });
+        expect(articles[0]).toEqual({
+          article_id: 1,
+          title: 'Living in the shadow of a great man',
+          topic: 'mitch',
+          author: 'butter_bridge',
+          body: 'I find this existence challenging',
+          created_at: '2020-07-09T20:11:00.000Z',
+          votes: 100,
+          article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+        });
+        
+      });
+  });
+});
+
