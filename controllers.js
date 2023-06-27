@@ -1,4 +1,5 @@
 const { selectTopics } = require('./models');
+const endpointsFile = require('./endpoints.json');
 
 const getTopics = (req, res, next) => {
     const topics = 'topics';
@@ -9,6 +10,9 @@ const getTopics = (req, res, next) => {
     .catch(next);
 }
 
+function getApiEndPoints (req, res, next){
+    res.status(200).send(endpointsFile);
+}
 
 //exporting to app.js mainly
-module.exports = {getTopics};
+module.exports = {getTopics, getApiEndPoints};
