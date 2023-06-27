@@ -14,11 +14,12 @@ describe("GET /api/topics", () => {
       .expect(200)
       .then(({ body }) => {
         const { topics } = body;
-        expect(topics).toHaveLength(3);
         topics.forEach((topics) => {
           expect(topics).toHaveProperty("description", expect.any(String));
           expect(topics).toHaveProperty("slug", expect.any(String));
         });
+        expect(topics).toHaveLength(3);
+        expect(topics[0]).toEqual({ slug: 'mitch', description: 'The man, the Mitch, the legend' });
       });
   });
 
