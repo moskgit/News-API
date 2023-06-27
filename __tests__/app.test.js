@@ -43,19 +43,17 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/1")
       .expect(200)
       .then(({ body }) => {
-        const {articles} = body;
+        const {article} = body;
 
-        articles.forEach((articles) => {
-          expect(articles).toHaveProperty("article_id", expect.any(Number));
-          expect(articles).toHaveProperty("title", expect.any(String));
-          expect(articles).toHaveProperty("topic", expect.any(String));
-          expect(articles).toHaveProperty("author", expect.any(String));
-          expect(articles).toHaveProperty("body", expect.any(String));
-          expect(articles).toHaveProperty("created_at", expect.any(String));
-          expect(articles).toHaveProperty("votes", expect.any(Number));
-          expect(articles).toHaveProperty("article_img_url", expect.any(String));
-        });
-        expect(articles[0]).toEqual({
+        expect(article[0]).toHaveProperty("article_id", expect.any(Number));
+        expect(article[0]).toHaveProperty("title", expect.any(String));
+        expect(article[0]).toHaveProperty("topic", expect.any(String));
+        expect(article[0]).toHaveProperty("author", expect.any(String));
+        expect(article[0]).toHaveProperty("body", expect.any(String));
+        expect(article[0]).toHaveProperty("created_at", expect.any(String));
+        expect(article[0]).toHaveProperty("votes", expect.any(Number));
+        expect(article[0]).toHaveProperty("article_img_url", expect.any(String));
+        expect(article[0]).toEqual({
           article_id: 1,
           title: 'Living in the shadow of a great man',
           topic: 'mitch',
@@ -68,5 +66,25 @@ describe("GET /api/articles/:article_id", () => {
         
       });
   });
+
+  test("400: respond with an error message if searched with wrong url. endpoint /api/articles/:article_id", () => {
+    return request(app)
+      .get("/api/articles/xyz")
+      .expect(400)
+      .then(({ body }) => {
+        const {article} = body;
+        expect(body.msg).toEqual("Bad request. Please check what you're requesting and try again.");
+      });
+    });
+
+    test("404: respond with JSON object of all /api/articles/:article_id endpoints", () => {
+      return request(app)
+        .get("/api/articles/1500")
+        .expect(404)
+        .then(({ body }) => {
+          const {article} = body;
+          expect(body.msg).toEqual("Record Not Found");
+        });
+    });
 });
 

@@ -17,8 +17,8 @@ function getApiEndPoints (req, res, next){
 const getArticlesById = (req, res, next) => {
     const {article_id} = req.params;
     selectArticlesById(article_id)
-    .then((articles) => {
-        res.status(200).send({articles});
+    .then((article) => {
+        res.status(200).send({article});
     })
     .catch(next);
 }
