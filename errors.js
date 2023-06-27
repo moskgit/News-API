@@ -16,7 +16,6 @@ exports.handleCustomErrors = (err ,req, res, next) => {
 
 //Server error handler
 exports.handleServerErrors = (err ,req, res, next) => {
-    console.log(err, " other error take note")
     res.status(500).send({msg: "server error occured. Please try again. If the erro persist, please contact the service provider."})
 }
     
