@@ -116,6 +116,16 @@ describe("GET /api/articles", () => {
           });
         }
       });
+    });
+  });
+
+  test("200: responds with a SORTED IN A DESCENDING order JSON object of all articles", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeSortedBy('created_at', { descending: true,});
       });
   });
 

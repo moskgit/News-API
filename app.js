@@ -17,7 +17,7 @@ app.get('/api/articles/:article_id', getArticlesById);
 
 app.get('/api/articles', getAllArticles);
 
-app.all('/api/*', (req, res, next) => {
+app.all('*', (_, res) => {
     res.status(400).send({msg:"Bad request. Please check what you're requesting and try again."});
 })
 
