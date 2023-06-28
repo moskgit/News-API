@@ -9,7 +9,7 @@ beforeEach(() => seed(testData));
 afterAll(()=> db.end());
 
 describe("GET /api/topics", () => {
-  test("200: respond with JSON object of all topics", () => {
+  test("200: responds with JSON object of all topics", () => {
     return request(app)
       .get("/api/topics")
       .expect(200)
@@ -27,7 +27,7 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET /api/", () => {
-  test("200: respond with JSON object of all /api/ endpoints", () => {
+  test("200: responds with JSON object of all /api/ endpoints", () => {
     return request(app)
       .get("/api/")
       .expect(200)
@@ -38,7 +38,7 @@ describe("GET /api/", () => {
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("200: respond with JSON object of all /api/articles/:article_id endpoints", () => {
+  test("200: responds with JSON object of all /api/articles/:article_id endpoints", () => {
     return request(app)
       .get("/api/articles/1")
       .expect(200)
@@ -67,24 +67,72 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 
-  test("400: respond with an error message if searched with wrong url. endpoint /api/articles/:article_id", () => {
+  test("400: responds with an error message if searched with wrong url. endpoint /api/articles/:article_id", () => {
     return request(app)
       .get("/api/articles/xyz")
       .expect(400)
       .then(({ body }) => {
-        const {article} = body;
         expect(body.msg).toEqual("Bad request. Please check what you're requesting and try again.");
       });
     });
 
-    test("404: respond with JSON object of all /api/articles/:article_id endpoints", () => {
+    test("404: responds with JSON object of all /api/articles/:article_id endpoints", () => {
       return request(app)
         .get("/api/articles/1500")
         .expect(404)
         .then(({ body }) => {
-          const {article} = body;
           expect(body.msg).toEqual("Record Not Found");
         });
     });
 });
 
+describe("GET /api/articles", () => {
+  test("200: responds with JSON object of all articles", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("topic", expect.any(String));
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+          expect(article).toHaveProperty("comment_count", expect.any(String));
+          expect(articles).toHaveLength(18);
+          if(article.article_id === 1){
+          expect(article).toEqual({
+            article_id: 1,
+            title: 'Living in the shadow of a great man',
+            topic: 'mitch',
+            author: 'butter_bridge',
+            created_at: '2020-07-09T20:11:00.000Z',
+            votes: 100,
+            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+            comment_count: '11'
+          });
+        }
+      });
+      });
+  });
+
+  test("400: responds with an error message if searched with wrong url. endpoint /api/articles/:article_id", () => {
+    return request(app)
+      .get("/api/articl")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Bad request. Please check what you're requesting and try again.");
+      });
+  });
+  test("404: responds with empty JSON object. endpoint: /api/articles", () => {
+    return request(app)
+      .get("/api/articles/1500")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Record Not Found");
+      });
+  });
+});
