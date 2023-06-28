@@ -146,3 +146,60 @@ describe("GET /api/articles", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: responds with JSON object of the comments of a given article id /api/articles/:article_id/comments endpoints", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const {comments} = body;
+        comments.forEach(comment => {
+          expect(comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(comment).toHaveProperty("votes", expect.any(Number));
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).toHaveProperty("author", expect.any(String));
+          expect(comment).toHaveProperty("body", expect.any(String));
+          expect(comment).toHaveProperty("article_id", expect.any(Number));
+          if(comment.comment_id === 5){
+            expect(comment).toEqual({
+              comment_id: 5,
+              votes: 0,
+              created_at: '2020-11-03T21:00:00.000Z',
+              author: 'icellusedkars',
+              body: 'I hate streaming noses',
+              article_id: 1
+            });
+          }
+        }); //end of the forEach
+      });
+  });
+
+  test("200: responds with JSON object of the comments of a given article id, SORTED BY MOST RECENT COMMENTS FIRST /api/articles/:article_id/comments endpoints", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const {comments} = body;
+        expect(comments).toBeSortedBy('created_at', { descending: true,});
+      });
+  });
+
+  test("400: responds with an error message if searched with wrong url. endpoint /api/articles/:article_id/comments", () => {
+    return request(app)
+      .get("/api/articles/xyz/comment")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Bad request. Please check what you're requesting and try again.");
+      });
+    });
+
+    test("404: responds with JSON object of all /api/articles/:article_id/comments endpoints", () => {
+      return request(app)
+        .get("/api/articles/1500/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("Not Found");
+        });
+    });
+});

@@ -47,4 +47,28 @@ function selectAllArticles(){
     });
 }
 
-module.exports = {selectTopics, selectArticlesById, selectAllArticles};
+function selectCommentsByArticleId(articleId) {
+    return db.query(`
+        SELECT 
+            c.comment_id,
+            c.votes,
+            c.created_at,
+            c.author,
+            c.body,
+            c.article_id
+        
+        FROM comments c 
+            JOIN articles a 
+            ON c.article_id = a.article_id
+            WHERE c.article_id = $1
+            ORDER BY c.created_at DESC;`, [articleId]
+        )
+        .then(({rows}) => {
+            if(rows.length === 0){
+                return Promise.reject({status:404, msg:"Not Found"});
+            }
+            return rows;
+        });
+}
+
+module.exports = {selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId};
