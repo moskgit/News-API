@@ -1,0 +1,30 @@
+--This is just a spare file.
+
+SELECT 
+    a.author,
+    a.title,
+    a.article_id,
+    a.topic,
+    a.created_at,
+    a.votes,
+    a.article_img_url, 
+    
+    (SELECT count(comment_id) comment_count FROM comments 
+    WHERE article_id = a.article_id GROUP BY article_id)
+    
+    FROM  articles a
+    JOIN comments c ON a.article_id = c.article_id 
+    --WHERE a.article_id = 1
+    ORDER BY created_at DESC;
+
+
+--SELECT count(comment_id) total_comments FROM comments WHERE article_id = 18 GROUP BY article_id;
+
+const {urlId} = req.params;
+
+SELECT a.article_id, c.comment_id, c.created_at FROM comments c 
+JOIN articles a 
+ON c.article_id = a.article_id
+WHERE c.article_id = 1
+ORDER BY c.created_at DESC;
+
