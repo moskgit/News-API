@@ -1,6 +1,6 @@
 const { selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId } = require('./models');
 const endpointsFile = require('./endpoints.json');
-const { writeAtricleById } = require('./writeDescriptions');
+const { writeAtricleById, writeCommentsById } = require('./writeDescriptions');
 
 const getTopics = (req, res, next) => {
     selectTopics()
@@ -37,6 +37,7 @@ const getCommentsByArticleId = (req, res, next) => {
     const {article_id} = req.params;
     selectCommentsByArticleId(article_id)
     .then((comments) => {
+        writeCommentsById();
         res.status(200).send({comments});
     })
     .catch(next);
