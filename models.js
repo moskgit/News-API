@@ -55,7 +55,7 @@ function selectCommentsByArticleId(articleId) {
             c.created_at,
             c.author,
             c.body,
-            c.article_id
+            a.article_id
         
         FROM comments c 
             JOIN articles a 
@@ -64,9 +64,10 @@ function selectCommentsByArticleId(articleId) {
             ORDER BY c.created_at DESC;`, [articleId]
         )
         .then(({rows}) => {
-            if(rows.length === 0){
-                return Promise.reject({status:404, msg:"Not Found"});
-            }
+            // if(rows.length === 0){
+            //     console.log('rejecting promise....');
+            //     // return Promise.reject({status:404, msg:"Not Found"});
+            // }
             return rows;
         });
 }

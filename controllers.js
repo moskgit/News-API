@@ -32,7 +32,6 @@ const getAllArticles = (req, res, next) => {
     .catch(next);
 }
 
-
 const getCommentsByArticleId = (req, res, next) => {
     const {article_id} = req.params;
     selectCommentsByArticleId(article_id)
@@ -42,6 +41,5 @@ const getCommentsByArticleId = (req, res, next) => {
     })
     .catch(next);
 }
-
 
 module.exports = {getTopics, getApiEndPoints, getArticlesById, getAllArticles, getCommentsByArticleId};

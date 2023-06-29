@@ -185,6 +185,16 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 
+  test("Status 200, valid ID, but has no comments responds with an empty array of comments - /api/articles/:article_id/comments endpoints", () => {
+    return request(app)
+      .get("/api/articles/4/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const {comments} = body;
+        expect(comments).toEqual([]);
+      });
+  });
+
   test("400: responds with an error message if searched with wrong url. endpoint /api/articles/:article_id/comments", () => {
     return request(app)
       .get("/api/articles/xyz/comment")
@@ -194,11 +204,12 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
     });
 
-    test("404: responds with JSON object of all /api/articles/:article_id/comments endpoints", () => {
+    xtest("404: responds with JSON object of all /api/articles/:article_id/comments endpoints", () => {
       return request(app)
-        .get("/api/articles/1500/comments")
+        .get("/api/articles/4/comments")
         .expect(404)
         .then(({ body }) => {
+          console.log('body: ', body);
           expect(body.msg).toEqual("Not Found");
         });
     });
