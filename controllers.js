@@ -39,7 +39,10 @@ const getCommentsByArticleId = (req, res, next) => {
         writeCommentsById();
         res.status(200).send({comments});
     })
-    .catch(next);
+    .catch((err)=>{
+        console.log('err: ', err);
+        next(err);
+    });
 }
 
 module.exports = {getTopics, getApiEndPoints, getArticlesById, getAllArticles, getCommentsByArticleId};

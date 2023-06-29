@@ -204,12 +204,11 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
     });
 
-    xtest("404: responds with JSON object of all /api/articles/:article_id/comments endpoints", () => {
+    test("404: responds with JSON object of all /api/articles/:article_id/comments endpoints", () => {
       return request(app)
-        .get("/api/articles/4/comments")
+        .get("/api/articles/1500/comments")
         .expect(404)
         .then(({ body }) => {
-          console.log('body: ', body);
           expect(body.msg).toEqual("Not Found");
         });
     });

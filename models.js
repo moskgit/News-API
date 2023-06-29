@@ -1,26 +1,26 @@
 const db = require('./db/connection');
 
-function selectTopics(){
+function selectTopics() {
     return db.query('SELECT * FROM topics ;')
-    .then(({rows})=>{
-        if(rows.length === 0){
-            return Promise.reject({status:404, msg:"Record Not Found"});
-        }
-        return rows;
-    }) 
+        .then(({ rows }) => {
+            if (rows.length === 0) {
+                return Promise.reject({ status: 404, msg: "Record Not Found" });
+            }
+            return rows;
+        })
 }
 
-function selectArticlesById(articleId){
+function selectArticlesById(articleId) {
     return db.query("SELECT * FROM articles WHERE article_id = $1", [articleId])
-    .then(({rows}) => {
-        if(rows.length === 0){
-            return Promise.reject({status:404, msg:"Record Not Found"});
-        }
-        return rows;
-    });
+        .then(({ rows }) => {
+            if (rows.length === 0) {
+                return Promise.reject({ status: 404, msg: "Record Not Found" });
+            }
+            return rows;
+        });
 }
 
-function selectAllArticles(){
+function selectAllArticles() {
     return db.query(`
         SELECT 
         a.author,
@@ -39,12 +39,12 @@ function selectAllArticles(){
         --WHERE a.article_id = 1
         ORDER BY created_at DESC;
     `)
-    .then(({rows}) => {
-        if(rows.length === 0){
-            return Promise.reject({status:404, msg:"Not Found"});
-        }
-        return rows;
-    });
+        .then(({ rows }) => {
+            if (rows.length === 0) {
+                return Promise.reject({ status: 404, msg: "Not Found" });
+            }
+            return rows;
+        });
 }
 
 function selectCommentsByArticleId(articleId) {
@@ -55,21 +55,29 @@ function selectCommentsByArticleId(articleId) {
             c.created_at,
             c.author,
             c.body,
-            a.article_id
+            c.article_id
         
         FROM comments c 
-            JOIN articles a 
-            ON c.article_id = a.article_id
+            
             WHERE c.article_id = $1
             ORDER BY c.created_at DESC;`, [articleId]
-        )
-        .then(({rows}) => {
-            // if(rows.length === 0){
-            //     console.log('rejecting promise....');
-            //     // return Promise.reject({status:404, msg:"Not Found"});
-            // }
-            return rows;
-        });
-}
-
-module.exports = {selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId};
+    )
+        .then(({ rows }) => {
+            if (rows.length === 0) {
+                //Use queries to check what's giving an empty array, before explicitly rejecting.
+                return checkWhatsGivingEmptyArray(articleId)
+                }
+                return rows;
+            });
+        }
+        
+        function checkWhatsGivingEmptyArray(article_id) {
+            return db.query('SELECT * FROM articles WHERE article_id = $1;', [article_id])
+            .then(({rows})=>{
+                if(rows.length === 0){
+                    return Promise.reject({ status: 404, msg: "Not Found" });
+                }
+                return [];});
+        }
+        
+        module.exports = { selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId };
