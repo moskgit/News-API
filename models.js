@@ -62,32 +62,40 @@ function selectCommentsByArticleId(articleId) {
             WHERE c.article_id = $1
             ORDER BY c.created_at DESC;`, [articleId]
     )
-        .then(({ rows }) => {
-            if (rows.length === 0) {
-                //Use queries to check what's giving an empty array, before explicitly rejecting.
-                return checkWhatsGivingEmptyArray(articleId)
-                }
-                return rows;
-            });
-        }
-        //used in ticket 06
-        function checkWhatsGivingEmptyArray(article_id) {
-            return db.query('SELECT * FROM articles WHERE article_id = $1;', [article_id])
-            .then(({rows})=>{
-                if(rows.length === 0){
-                    return Promise.reject({ status: 404, msg: "Not Found" });
-                }
-                return [];});
-        }
+    .then(({ rows }) => {
+        if (rows.length === 0) {
+            //Use queries to check what's giving an empty array, before explicitly rejecting.
+            return checkWhatsGivingEmptyArray(articleId)
+            }
+            return rows;
+        });
+    }
+    //used in ticket 06
+    function checkWhatsGivingEmptyArray(article_id) {
+        return db.query('SELECT * FROM articles WHERE article_id = $1;', [article_id])
+        .then(({rows})=>{
+            if(rows.length === 0){
+                return Promise.reject({ status: 404, msg: "Not Found" });
+            }
+            return [];
+        });
+    }
         
-function createComments(author, body, article_id, votes){
-    return db.query(`INSERT INTO comments (body, article_id, author, votes, created_at) 
-    VALUES ( $1, $2, $3, $4, $5 ) RETURNING *`, [body, article_id, author, votes, 'now()'])
-    .then(({rows}) => {
-        return rows;
-    })
-}
-
+    function createComments(author, body, article_id, votes = 0){
+        return db.query('SELECT * FROM articles WHERE article_id = $1;', [article_id])
+        .then(({rows}) => {
+            if(rows.length === 0){
+                return Promise.reject({ status: 404, msg: "404 not found with a non-existent id - 4000 etc" });
+            }else {
+                return db.query(`INSERT INTO comments (body, article_id, author, votes, created_at) 
+                VALUES ( $1, $2, $3, $4, $5 ) RETURNING *`, [body, article_id, author, votes, 'now()'])
+            }
+        })
+        .then(({rows}) => {
+            return rows;
+        })
+    }
+    
 
 
 module.exports = { selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId, createComments };

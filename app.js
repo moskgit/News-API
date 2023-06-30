@@ -22,6 +22,7 @@ app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
 app.post('/api/articles/:article_id/comments', postComments);
 
 app.all('*', (_, res) => {
+    
     res.status(400).send({msg:"Bad request. Please check what you're requesting and try again."});
 })
 

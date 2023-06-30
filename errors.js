@@ -1,7 +1,10 @@
 //psql errors handler
 exports.handlePsqlErrors = (err ,req, res, next) => {
+
     if ( err.code >= '22000' && err.code < '23000' ) {
         res.status(400).send( {msg:`Bad request. Data exception Error ${err.code}`} );
+    }else if(err.code === '23503'){
+        res.status(404).send({msg: "404 not found - username does not exist in the database."});
     }else if( err.code >= '23000' && err.code <= '23505' || err.code === '23514' || err.code === '23P01' ) {
         res.status(400).send( {msg:`Malfunction: Class 23 — Integrity Constraint Violation: ${err.code}`} );
     }else if( err.code >= '08000' && err.code < '09000' ) { 

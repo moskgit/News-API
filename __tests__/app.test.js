@@ -217,25 +217,24 @@ describe("GET /api/articles/:article_id/comments", () => {
 
 //07
 describe("POST /api/articles/:article_id/comments", () => {
-  test("200: responds with a JSON object of the comments of a given article id Which has been posted.", () => {
+  test("201: responds with a JSON object of the comments of a given article id Which has been posted.", () => {
     const newComments = {username: 'lurker', body: 'Comments...'};
     return request(app)
       .post("/api/articles/1/comments")
       .send(newComments)
       .expect(201)
       .then(({ body }) => {
-        const {comments} = body;
+        const comment = body.comment[0];
+          expect(comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(comment).toHaveProperty("votes", expect.any(Number));
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).toHaveProperty("author", expect.any(String));
+          expect(comment).toHaveProperty("body", expect.any(String));
+          expect(comment).toHaveProperty("article_id", expect.any(Number));
 
-          expect(comments[0]).toHaveProperty("comment_id", expect.any(Number));
-          expect(comments[0]).toHaveProperty("votes", expect.any(Number));
-          expect(comments[0]).toHaveProperty("created_at", expect.any(String));
-          expect(comments[0]).toHaveProperty("author", expect.any(String));
-          expect(comments[0]).toHaveProperty("body", expect.any(String));
-          expect(comments[0]).toHaveProperty("article_id", expect.any(Number));
-
-          expect(comments[0]["votes"]).toEqual(1);
-          expect(comments[0]["author"]).toEqual('lurker');
-          expect(comments[0]["body"]).toEqual('Comments...');
+          expect(comment["votes"]).toEqual(0);
+          expect(comment["author"]).toEqual('lurker');
+          expect(comment["body"]).toEqual('Comments...');
       });
   });
 
@@ -250,15 +249,51 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400: responds with an error message if there's an INCORRECT DATA TYPE in REQUEST BODY.", () => {
+  test("200: Additional arguments are not allowed.", () => {
   const newComments = {username: 1, body:'Comments...', votes: 'x'}; //Creating data exception error. votes should be an integer.
       return request(app)
         .post("/api/articles/1/comments")
         .send(newComments)
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.msg).toMatch("Not Updated any record. Data input exception Error. Additional arguments are not allowed.")
+        });
+  });
+
+  test("400 bad request with an invalid id - notanid etc", () => {
+    const newComments = {username: 1, body:'Comments...'};
+      return request(app)
+        .post("/api/articles/'10'/comments")
+        .send(newComments)
         .expect(400)
         .then(({ body }) => {
-            expect(body.msg).toMatch("Bad request. Data exception Error")
+            expect(body.msg).toMatch("Bad request. Data exception Error 22P02")
+        });
+  });
+
+  test("404 not found with a non-existent id - 4000 etc", () => {
+    const newComments = {username: 1, body:'Comments...'};
+      return request(app)
+        .post("/api/articles/1500/comments")
+        .send(newComments)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("404 not found with a non-existent id - 4000 etc");
+        });
+  });
+
+  test("404 not found - username does not exist in the database.", () => {
+    const newComments = {username: 'bananas', body:'Comments...'};
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComments)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("404 not found - username does not exist in the database.");
         });
   });
 });
 
+// 400 bad request with an invalid id - notanid etc
+// 404 not found with a non-existent id - 4000 etc
+// 404 not found - username does not exist in the database (psql will throw it's own error for you to utilise)
