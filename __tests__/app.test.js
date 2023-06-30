@@ -38,7 +38,7 @@ describe("GET /api/", () => {
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("200: responds with JSON object of all /api/articles/:article_id endpoints", () => {
+  test("200: responds with JSON object of all articles for a given article_id.", () => {
     return request(app)
       .get("/api/articles/1")
       .expect(200)
@@ -67,16 +67,16 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 
-  test("400: responds with an error message if searched with wrong url. endpoint /api/articles/:article_id", () => {
+  test("400: responds with an error message if searched with wrong url. URL: /api/articles/:article_id", () => {
     return request(app)
       .get("/api/articles/xyz")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toEqual("Bad request. Please check what you're requesting and try again.");
+        expect(body.msg).toMatch("Data exception Error");
       });
     });
 
-    test("404: responds with JSON object of all /api/articles/:article_id endpoints", () => {
+    test("404: responds with JSON object of all records of a given article_id", () => {
       return request(app)
         .get("/api/articles/1500")
         .expect(404)
@@ -87,7 +87,7 @@ describe("GET /api/articles/:article_id", () => {
 });
 
 describe("GET /api/articles", () => {
-  test("200: responds with JSON object of all articles", () => {
+  test("200: responds with JSON object of all articles.", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -119,7 +119,7 @@ describe("GET /api/articles", () => {
     });
   });
 
-  test("200: responds with a SORTED IN A DESCENDING order JSON object of all articles", () => {
+  test("200: responds with a JSON object of all articles SORTED IN A DESCENDING order.", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -129,7 +129,7 @@ describe("GET /api/articles", () => {
       });
   });
 
-  test("400: responds with an error message if searched with wrong url. endpoint /api/articles/:article_id", () => {
+  test("400: responds with an error message if searched with wrong url. URL: /api/articles/:article_id", () => {
     return request(app)
       .get("/api/articl")
       .expect(400)
@@ -137,7 +137,8 @@ describe("GET /api/articles", () => {
         expect(body.msg).toEqual("Bad request. Please check what you're requesting and try again.");
       });
   });
-  test("404: responds with empty JSON object. endpoint: /api/articles", () => {
+
+  test("404: responds with empty JSON object.", () => {
     return request(app)
       .get("/api/articles/1500")
       .expect(404)
@@ -148,7 +149,7 @@ describe("GET /api/articles", () => {
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
-  test("200: responds with JSON object of the comments of a given article id /api/articles/:article_id/comments endpoints", () => {
+  test("200: responds with JSON object of the comments of a given article id.", () => {
     return request(app)
       .get("/api/articles/1/comments")
       .expect(200)
@@ -175,7 +176,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("200: responds with JSON object of the comments of a given article id, SORTED BY MOST RECENT COMMENTS FIRST /api/articles/:article_id/comments endpoints", () => {
+  test("200: responds with JSON object of the comments of a given article id, SORTED BY MOST RECENT COMMENTS FIRST.", () => {
     return request(app)
       .get("/api/articles/1/comments")
       .expect(200)
@@ -185,7 +186,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("Status 200, valid ID, but has no comments responds with an empty array of comments - /api/articles/:article_id/comments endpoints", () => {
+  test("Status 200, valid ID, but has no comments responds with an empty array of comments.", () => {
     return request(app)
       .get("/api/articles/4/comments")
       .expect(200)
@@ -195,21 +196,69 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400: responds with an error message if searched with wrong url. endpoint /api/articles/:article_id/comments", () => {
+  test("400: responds with an error message if searched with wrong url. URL: /api/articles/:article_id/comments", () => {
     return request(app)
       .get("/api/articles/xyz/comment")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toEqual("Bad request. Please check what you're requesting and try again.");
       });
-    });
+  });
 
-    test("404: responds with JSON object of all /api/articles/:article_id/comments endpoints", () => {
-      return request(app)
-        .get("/api/articles/1500/comments")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toEqual("Not Found");
-        });
-    });
+  test("404: responds with JSON object of all /api/articles/:article_id/comments endpoints", () => {
+    return request(app)
+      .get("/api/articles/1500/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Not Found");
+      });
+  });
 });
+
+//07
+describe("POST /api/articles/:article_id/comments", () => {
+  test("200: responds with a JSON object of the comments of a given article id Which has been posted.", () => {
+    const newComments = {username: 'lurker', body: 'Comments...'};
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComments)
+      .expect(201)
+      .then(({ body }) => {
+        const {comments} = body;
+
+          expect(comments[0]).toHaveProperty("comment_id", expect.any(Number));
+          expect(comments[0]).toHaveProperty("votes", expect.any(Number));
+          expect(comments[0]).toHaveProperty("created_at", expect.any(String));
+          expect(comments[0]).toHaveProperty("author", expect.any(String));
+          expect(comments[0]).toHaveProperty("body", expect.any(String));
+          expect(comments[0]).toHaveProperty("article_id", expect.any(Number));
+
+          expect(comments[0]["votes"]).toEqual(1);
+          expect(comments[0]["author"]).toEqual('lurker');
+          expect(comments[0]["body"]).toEqual('Comments...');
+      });
+  });
+
+  test("400: responds with an error message if there's a malfunction request, for example missing NOT NULL value/s.", () => {
+  const newComments = {username: 1, body:null}; //Creating violation for the 'NOT NULL' column. Check errors.js for details.
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComments)
+      .expect(400)
+      .then(({ body }) => {
+          expect(body.msg).toMatch("Malfunction: Class 23 — Integrity Constraint Violation:")
+      });
+  });
+
+  test("400: responds with an error message if there's an INCORRECT DATA TYPE in REQUEST BODY.", () => {
+  const newComments = {username: 1, body:'Comments...', votes: 'x'}; //Creating data exception error. votes should be an integer.
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComments)
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toMatch("Bad request. Data exception Error")
+        });
+  });
+});
+

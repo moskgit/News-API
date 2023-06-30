@@ -70,7 +70,7 @@ function selectCommentsByArticleId(articleId) {
                 return rows;
             });
         }
-        
+        //used in ticket 06
         function checkWhatsGivingEmptyArray(article_id) {
             return db.query('SELECT * FROM articles WHERE article_id = $1;', [article_id])
             .then(({rows})=>{
@@ -80,4 +80,14 @@ function selectCommentsByArticleId(articleId) {
                 return [];});
         }
         
-        module.exports = { selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId };
+function createComments(author, body, article_id, votes){
+    return db.query(`INSERT INTO comments (body, article_id, author, votes, created_at) 
+    VALUES ( $1, $2, $3, $4, $5 ) RETURNING *`, [body, article_id, author, votes, 'now()'])
+    .then(({rows}) => {
+        return rows;
+    })
+}
+
+
+
+module.exports = { selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId, createComments };

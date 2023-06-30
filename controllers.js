@@ -1,6 +1,6 @@
-const { selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId } = require('./models');
+const { selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId, createComments } = require('./models');
 const endpointsFile = require('./endpoints.json');
-const { writeAtricleById, writeCommentsById } = require('./writeDescriptions');
+const { describeAtricleById, describeCommentsById, describePostingCommentsById } = require('./writeDescriptions');
 
 const getTopics = (req, res, next) => {
     selectTopics()
@@ -18,7 +18,7 @@ const getArticlesById = (req, res, next) => {
     const {article_id} = req.params;
     selectArticlesById(article_id)
     .then((article) => {
-        writeAtricleById();
+        describeAtricleById();
         res.status(200).send({article});
     })
     .catch(next);
@@ -36,12 +36,23 @@ const getCommentsByArticleId = (req, res, next) => {
     const {article_id} = req.params;
     selectCommentsByArticleId(article_id)
     .then((comments) => {
-        writeCommentsById();
+        describeCommentsById();
         res.status(200).send({comments});
     })
-    .catch((err)=>{
-        next(err);
-    });
+    .catch(next);
 }
 
-module.exports = {getTopics, getApiEndPoints, getArticlesById, getAllArticles, getCommentsByArticleId};
+const postComments = (req, res, next) => {
+    const {username, body, votes = 1} = req.body;
+    const {article_id} = req.params;
+    
+    createComments(username, body, article_id, votes)
+    .then((comments) => {
+        describePostingCommentsById();
+        res.status(201).send({comments});
+    })
+    .catch(next)
+}
+
+
+module.exports = {getTopics, getApiEndPoints, getArticlesById, getAllArticles, getCommentsByArticleId, postComments};

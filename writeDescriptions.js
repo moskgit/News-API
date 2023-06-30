@@ -1,7 +1,7 @@
 require('./controllers');
 const fs = require('fs/promises');
 
-function writeAtricleById() {
+function describeAtricleById() {
     fs.readFile('./endpoints.json', 'utf-8')
         .then((contents)=>{
             contents = JSON.parse(contents);
@@ -25,7 +25,7 @@ function writeAtricleById() {
         })
 }
 
-function writeCommentsById (){
+function describeCommentsById (){
     fs.readFile('./endpoints.json', 'utf-8')
         .then((contents)=>{
             contents = JSON.parse(contents);
@@ -48,4 +48,26 @@ function writeCommentsById (){
             fs.writeFile('./endpoints.json', JSON.stringify(contents));
         })
 }
-module.exports = {writeAtricleById, writeCommentsById}
+
+function describePostingCommentsById (){
+    fs.readFile('./endpoints.json', 'utf-8')
+        .then((contents)=>{
+            contents = JSON.parse(contents);
+            contents["POST /api/articles/:article_id/comments"] = {
+                "description": "Creates new the comments for the given article_id. and displays newly created record.",
+                "queries": [],
+                "exampleResponse": {
+                "comment":[{
+                    comment_id: 19,
+                    body: 'Comments...',
+                    article_id: 1,
+                    author: 'lurker',
+                    votes: 1,
+                    created_at: '2023-06-30T00:28:55.205Z'
+                  }]
+                }
+            }
+            fs.writeFile('./endpoints.json', JSON.stringify(contents));
+        })
+}
+module.exports = {describeAtricleById, describeCommentsById, describePostingCommentsById}
