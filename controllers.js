@@ -1,6 +1,6 @@
-const { selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId } = require('./models');
+const { selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId, createComments } = require('./models');
 const endpointsFile = require('./endpoints.json');
-const { writeAtricleById, writeCommentsById } = require('./writeDescriptions');
+const { describeAtricleById, describeCommentsById, describePostingCommentsById } = require('./writeDescriptions');
 
 const getTopics = (req, res, next) => {
     selectTopics()
@@ -18,7 +18,7 @@ const getArticlesById = (req, res, next) => {
     const {article_id} = req.params;
     selectArticlesById(article_id)
     .then((article) => {
-        writeAtricleById();
+        describeAtricleById();
         res.status(200).send({article});
     })
     .catch(next);
@@ -36,12 +36,29 @@ const getCommentsByArticleId = (req, res, next) => {
     const {article_id} = req.params;
     selectCommentsByArticleId(article_id)
     .then((comments) => {
-        writeCommentsById();
+        describeCommentsById();
         res.status(200).send({comments});
     })
-    .catch((err)=>{
-        next(err);
-    });
+    .catch(next);
 }
 
-module.exports = {getTopics, getApiEndPoints, getArticlesById, getAllArticles, getCommentsByArticleId};
+const postComments = (req, res, next) => {
+    const {username, body} = req.body;
+    const {article_id} = req.params;
+
+    if(typeof req.body.body !== 'string' && req.body.body !== null){
+        return Promise.reject({ status: 400, msg: "Bad request. Data exception Error" }).then().catch(next);
+    }else if(Object.keys(req.body).length > 2){
+        return Promise.reject({ status: 200, msg: "Not Updated any record. Data input exception Error. Additional arguments are not allowed."}).then().catch(next);
+    }else{
+        createComments(username, body, article_id)
+        .then((comment) => {
+            describePostingCommentsById();
+            res.status(201).send({comment});
+        })
+        .catch(next);
+    }
+}
+
+
+module.exports = {getTopics, getApiEndPoints, getArticlesById, getAllArticles, getCommentsByArticleId, postComments};
