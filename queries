@@ -70,3 +70,8 @@ WHERE a.article_id = $1;`, [article_id]
 
     //alter sequence
     ALTER SEQUENCE comments_comment_id_seq RESTART WITH 19;
+
+//update
+`UPDATE articles SET votes = (
+    (SELECT votes FROM articles WHERE article_id = ${article_id}) + ${inc_votes}
+    ) WHERE article_id = ${article_id} RETURNING *;`)
