@@ -146,6 +146,7 @@ describe("GET /api/articles", () => {
         expect(body.msg).toEqual("Record Not Found");
       });
   });
+
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
@@ -294,6 +295,332 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 
-// 400 bad request with an invalid id - notanid etc
-// 404 not found with a non-existent id - 4000 etc
-// 404 not found - username does not exist in the database (psql will throw it's own error for you to utilise)
+
+//08
+describe("PATCH /api/articles/:article_id", () => {
+  test("201: Increment by 20: - article number 6 responds with a JSON object Which has been UPDATED, from the articles, matching the given article id.", () => {
+    const newArticle = { inc_votes: 20 };
+    return request(app)
+      .patch("/api/articles/6")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body }) => {
+        const {article} = body;
+
+        expect(article[0]).toHaveProperty("article_id", expect.any(Number));
+        expect(article[0]).toHaveProperty("title", expect.any(String));
+        expect(article[0]).toHaveProperty("topic", expect.any(String));
+        expect(article[0]).toHaveProperty("author", expect.any(String));
+        expect(article[0]).toHaveProperty("body", expect.any(String));
+        expect(article[0]).toHaveProperty("created_at", expect.any(String));
+        expect(article[0]).toHaveProperty("votes", expect.any(Number));
+        expect(article[0]).toHaveProperty("article_img_url", expect.any(String));
+        expect(article[0]).toEqual({
+          article_id: 6,
+          title: 'A',
+          topic: 'mitch',
+          author: 'icellusedkars',
+          body: 'Delicious tin of cat food',
+          created_at: '2020-10-18T01:00:00.000Z',
+          votes: 20,
+          article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+        });
+      });
+  });
+
+  test("201: Decrement by 10 - article number 6: responds with a JSON object Which has been UPDATED, from the articles, matching the given article id.", () => {
+    const newArticle = { inc_votes: -10 };
+    return request(app)
+      .patch("/api/articles/6")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body }) => {
+        const {article} = body;
+
+        expect(article[0]).toHaveProperty("article_id", expect.any(Number));
+        expect(article[0]).toHaveProperty("title", expect.any(String));
+        expect(article[0]).toHaveProperty("topic", expect.any(String));
+        expect(article[0]).toHaveProperty("author", expect.any(String));
+        expect(article[0]).toHaveProperty("body", expect.any(String));
+        expect(article[0]).toHaveProperty("created_at", expect.any(String));
+        expect(article[0]).toHaveProperty("votes", expect.any(Number));
+        expect(article[0]).toHaveProperty("article_img_url", expect.any(String));
+        expect(article[0]).toEqual({
+          article_id: 6,
+          title: 'A',
+          topic: 'mitch',
+          author: 'icellusedkars',
+          body: 'Delicious tin of cat food',
+          created_at: '2020-10-18T01:00:00.000Z',
+          votes: -10,
+          article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+        });
+      });
+  });
+    
+  test("400: responds with an error message if there's a malfunction request, for example missing NOT NULL value.", () => {
+    const newArticle = { inc_votes: null }; //Creating violation for the 'NOT NULL' column. Check errors.js for details.
+    return request(app)
+      .patch("/api/articles/6")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+          expect(body.msg).toMatch("Malfunction: Class 23 — Integrity Constraint Violation:")
+      });
+  });
+    
+  test("400: responds with an error message if there's an INCORRECT DATA TYPE in REQUEST BODY.", () => {
+    const newComments = {inc_votes : 'xyz'}; // Creating Data exception error.
+    return request(app)
+      .patch("/api/articles/6")
+      .send(newComments)
+      .expect(400)
+      .then(({ body }) => {
+          expect(body.msg).toMatch("Bad request. Please check syntax/data of what you're requesting and try again. \nClass 42 — Syntax Error or Access Rule Violation ")
+      });
+  });
+
+  test("400: responds with an error message if REQUESTing article_id is NaN.", () => {
+    const newComments = {inc_votes : 50};
+    return request(app)
+      .patch("/api/articles/'xyz'")
+      .send(newComments)
+      .expect(400)
+      .then(({ body }) => {
+          expect(body.msg).toMatch("Bad request. Please check syntax/data of what you're requesting and try again. \nClass 42 — Syntax Error or Access Rule Violation ")
+      });
+  });
+
+  test("404: responds with an error message if VALID article_id BUT NOT RESOURCE FOUND in the record.", () => {
+    const newComments = {inc_votes : 50};
+    return request(app)
+      .patch("/api/articles/5000")
+      .send(newComments)
+      .expect(404)
+      .then(({ body }) => {
+          expect(body.msg).toMatch("404: not found with a non-existent id - 5000 etc");
+      });
+  });
+});
+
+//09
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: responds with a DELETED JSON object for the COMMENT ID.", () => {
+    return request(app)
+      .delete("/api/comments/18")
+      .expect(204)
+      .then(({body}) => {
+        expect(body).toEqual({});
+      });
+  });
+ 
+  test("400: responds with an error message if REQUESTing article_id is NaN.", () => {
+    return request(app)
+      .delete("/api/comments/'xyz")
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toMatch("Bad request. Please check syntax/data of what you're requesting and try again. \nClass 42 — Syntax Error or Access Rule Violation ");
+      });
+  });
+
+  test("404: responds with an error message if VALID article_id BUT NOT FOUND in the record.", () => {
+    return request(app)
+      .delete("/api/comments/6000")
+      .expect(404)
+      .then(({ body }) => {
+          expect(body.msg).toMatch("404: not found with a non-existent id - 6000");
+      });
+  });
+});
+
+//10
+describe("GET /api/users", () => {
+  test("200: responds with JSON object of all articles.", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        users.forEach((user) => {
+          expect(user).toHaveProperty("username", expect.any(String));
+          expect(user).toHaveProperty("name", expect.any(String));
+          expect(user).toHaveProperty("avatar_url", expect.any(String));
+          expect(users).toHaveLength(4);
+          if(user.username === 'butter_bridge'){
+          expect(user).toEqual({
+            username: 'butter_bridge',
+            name: 'jonny',
+            avatar_url: 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
+          });
+        }
+      });
+    });
+  });
+
+  test("400: responds with an error message if searched with wrong url.", () => {
+    return request(app)
+      .get("/api/use")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Bad request. Please check what you're requesting and try again.");
+      });
+  });
+//NOTE: The following test passes if the 'users' table is empty(i.e-if it holds no record but the table exists).
+//To run the test, remove 'x' (the first character.)
+  xtest("404: responds with an error message.", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Record Not Found");
+      });
+  });
+});
+
+//11
+describe("GET /api/articles (queries)", () => {
+  test("200: (TOPIC) responds with JSON object of all articles filtered by a topic searched for.", () => {
+    return request(app)
+      .get("/api/articles?topic='cats'")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("topic", expect.any(String));
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+          expect(article).toHaveProperty("comment_count", expect.any(String));
+          expect(articles).toHaveLength(18);
+          if(article.article_id === 1){
+          expect(article).toEqual({
+            article_id: 1,
+            title: 'Living in the shadow of a great man',
+            topic: 'mitch',
+            author: 'butter_bridge',
+            created_at: '2020-07-09T20:11:00.000Z',
+            votes: 100,
+            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+            comment_count: '11'
+          });
+        }
+      });
+    });
+  });
+
+  test("200: (SORT BY) responds with JSON object of all articles filtered by a topic searched for.", () => {
+    return request(app)
+      .get("/api/articles?sort_by=article_id")
+      .expect(200)
+      .then(({ body }) => {        
+        const { articles } = body;
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("topic", expect.any(String));
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+          expect(article).toHaveProperty("comment_count", expect.any(String));
+          expect(articles).toHaveLength(18);
+          if(article.article_id === 1){
+          expect(article).toEqual({
+            article_id: 1,
+            title: 'Living in the shadow of a great man',
+            topic: 'mitch',
+            author: 'butter_bridge',
+            created_at: '2020-07-09T20:11:00.000Z',
+            votes: 100,
+            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+            comment_count: '11'
+          });
+        }
+      });
+    });
+  });
+
+  test("200: (ORDER=ASC/DESC) responds with JSON object of all articles filtered by a topic searched for.", () => {
+    return request(app)
+      .get("/api/articles?order=ASC")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("topic", expect.any(String));
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+          expect(article).toHaveProperty("comment_count", expect.any(String));
+          expect(articles).toHaveLength(18);
+          if(article.article_id === 1){
+          expect(article).toEqual({
+            article_id: 1,
+            title: 'Living in the shadow of a great man',
+            topic: 'mitch',
+            author: 'butter_bridge',
+            created_at: '2020-07-09T20:11:00.000Z',
+            votes: 100,
+            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+            comment_count: '11'
+          });
+        }
+      });
+    });
+  });
+
+  xtest("400: WRONG 'topic' searched. responds with an error message if searched with wrong topic value.", () => {
+    return request(app)
+      .get("/api/articles?topic=undefined")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Bad request. Wrong search value.");
+      });
+  });
+
+});
+
+//12
+describe("GET /api/articles/:article_id (comment_count)", () => {
+  test("200: (COMMENT_COUNT = true) responds with JSON object of an article for the id that displays comment count.", () => {
+    return request(app)
+      .get("/api/articles/1?comment_count=jkh")
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+          if(article.article_id === 1){
+          expect(article).toEqual({ comment_count: '11' });
+        }
+    });
+  });
+
+  test("200: (COMMENT_COUNT = false) responds with JSON object of an article for the id that displays comment count.", () => {
+    return request(app)
+      .get("/api/articles/1?comment_count=false")
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+          if(article.article_id === 1){
+          expect(article).toEqual({ comment_count: '11' });
+        }
+    });
+  });
+
+  test("200: (COMMENT_COUNT = jkh) responds with JSON object of an article for the id that displays comment count.", () => {
+    return request(app)
+      .get("/api/articles/1?comment_count=jkh")
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+          if(article.article_id === 1){
+          expect(article).toEqual({ comment_count: '11' });
+        }
+    });
+  });
+});
