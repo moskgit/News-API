@@ -7,7 +7,7 @@ function describeAtricleById() {
         contents = JSON.parse(contents);
         contents["GET /api/articles/:article_id"] = {
             "description": "serves the requested article in a descending order by the date it's created.",
-            "queries": ["article_id"],
+            "queries": [],
             "exampleResponse": {
             "article":[{
             "article_id": 1,
@@ -132,13 +132,14 @@ function describeGetApiUsers(){
     })
 }
 
-function getApiArticlesQueries(){
+//parametric endpoints | queries allowed
+function describeGetApiArticlesQueries(){
     fs.readFile('./endpoints.json', 'utf-8')
     .then((contents)=>{
         contents = JSON.parse(contents);
         contents["GET /api/articles (queries)"] = {
             "description": "Serves with a filtered list of articles based on the query/queries.",
-            "queries": ["topic", "sort_by", "order"],
+            "queries": ["topic=['cats','mitch','papers']", "sort_by=['author','title','article_id','created_at','votes','article_img_url']", "order=['ASC','DESC']"],
             "exampleResponse": {articles: [
                 {
                     article_id: 1,
@@ -166,4 +167,4 @@ function getApiArticlesQueries(){
     })
 }
 
-module.exports = {describeAtricleById, describeCommentsById, describePostingCommentsById, describeUpdatingArticlesById, describeDeletingCommentsById, describeGetApiUsers, getApiArticlesQueries}
+module.exports = {describeAtricleById, describeCommentsById, describePostingCommentsById, describeUpdatingArticlesById, describeDeletingCommentsById, describeGetApiUsers, describeGetApiArticlesQueries}

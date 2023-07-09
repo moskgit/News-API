@@ -1,6 +1,6 @@
 const { selectTopics, selectArticlesById, selectArticles, selectCommentsByArticleId, createComments, updateArticle, deletingComment, selectUsers } = require('./models');
 const endpointsFile = require('./endpoints.json');
-const { describeAtricleById, describeCommentsById, describePostingCommentsById, describeUpdatingArticlesById, describeDeletingCommentsById, describeGetApiUsers, getApiArticlesQueries } = require('./writeDescriptions');
+const { describeAtricleById, describeCommentsById, describePostingCommentsById, describeUpdatingArticlesById, describeDeletingCommentsById, describeGetApiUsers, describeGetApiArticlesQueries } = require('./writeDescriptions');
 
 const getTopics = (req, res, next) => {
     selectTopics()
@@ -30,7 +30,7 @@ const getArticles = (req, res, next) => {
 
     selectArticles(topic, sort_by, order)
     .then((articles) => {
-        getApiArticlesQueries();
+        describeGetApiArticlesQueries();
         res.status(200).send({articles});
     })
     .catch(next);

@@ -34,10 +34,9 @@ function selectArticlesById(articleId, comment_count = false) {
 
 function selectArticles(topic, sort_by = 'created_at', order = 'DESC') { 
 
-    const validTopics = ['cats', 'mitch', 'paper'];
     const validSortBy = ['author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'article_img_url'];
     const validOrder = ['ASC', 'DESC'];
-
+    const validTopics = ['coding', 'football', 'cooking', 'cats', 'mitch', 'paper'];
     let query = 
         `SELECT 
             a.author,
@@ -48,27 +47,30 @@ function selectArticles(topic, sort_by = 'created_at', order = 'DESC') {
             a.votes,
             a.article_img_url, 
 
-        (SELECT count(comment_id) comment_count FROM comments 
-        WHERE article_id = a.article_id GROUP BY article_id)
+            (SELECT count(comment_id) comment_count FROM comments 
+            WHERE article_id = a.article_id GROUP BY article_id)
 
-        FROM  articles a
-        JOIN comments c ON a.article_id = c.article_id `;
+        FROM  articles a `;
+    
+    if(topic){
+        if(validTopics.includes(topic))
+            query += `WHERE a.topic='${topic}' `;
+        if(!validTopics.includes(topic))
+                return Promise.reject({ status: 404, msg: "Bad request. Wrong query(search) value. Data does not exist." });
+    }
 
-    //     // console.log('(topic): ', (topic)?true:false);
-    //     console.log('topic: ', topic);
-    //     console.log('validTopics.includes(topic): ', validTopics.includes(topic));
-    // if(topic){
-    //     if(!validTopics.includes(topic) === false) {
-    //         return Promise.reject({status:400, msg:"Bad request. Wrong search value."});
-    //     }
-    // }
-
-    if(validTopics.includes(topic))
-        query += `WHERE a.topic=${topic} `;
     if(validSortBy.includes(sort_by))
         query += `ORDER BY ${sort_by} `;
+    else if(!validTopics.includes(sort_by))
+        return Promise.reject({ status: 404, msg: "Bad request. Wrong query(search) value. Data does not exist." });
+    
+
     if(validOrder.includes(order))
         query += order;
+    else if(!validTopics.includes(order))
+        return Promise.reject({ status: 404, msg: "Bad request. Wrong query(search) value. Data does not exist." });
+
+    query += ';'
 
     return db.query(query)
         .then(({ rows }) => {
@@ -100,7 +102,7 @@ function selectCommentsByArticleId(articleId) {
             return rows;
         });
     }
-//used in ticket 06 above.
+//used in a then block above.
 function checkIfRecordExists(article_id) {
     return db.query('SELECT * FROM articles WHERE article_id = $1;', [article_id])
     .then(({rows})=>{

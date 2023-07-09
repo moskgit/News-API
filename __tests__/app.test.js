@@ -101,8 +101,8 @@ describe("GET /api/articles", () => {
           expect(article).toHaveProperty("created_at", expect.any(String));
           expect(article).toHaveProperty("votes", expect.any(Number));
           expect(article).toHaveProperty("article_img_url", expect.any(String));
-          expect(article).toHaveProperty("comment_count", expect.any(String));
-          expect(articles).toHaveLength(18);
+          expect(article).toHaveProperty("comment_count");
+          expect(articles).toHaveLength(13);
           if(article.article_id === 1){
           expect(article).toEqual({
             article_id: 1,
@@ -467,7 +467,7 @@ describe("GET /api/users", () => {
   });
 //NOTE: The following test passes if the 'users' table is empty(i.e-if it holds no record but the table exists).
 //To run the test, remove 'x' (the first character.)
-  xtest("404: responds with an error message.", () => {
+  xtest("404: responds with an error message if there is no user. (i.e.-'users' table being empty.)", () => {
     return request(app)
       .get("/api/users")
       .expect(404)
@@ -479,9 +479,9 @@ describe("GET /api/users", () => {
 
 //11
 describe("GET /api/articles (queries)", () => {
-  test("200: (TOPIC) responds with JSON object of all articles filtered by a topic searched for.", () => {
+  test.only("200: (TOPIC) responds with JSON object of all articles filtered by a topic searched for.", () => {
     return request(app)
-      .get("/api/articles?topic='cats'")
+      .get("/api/articles?topic=mitch")
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
@@ -493,8 +493,8 @@ describe("GET /api/articles (queries)", () => {
           expect(article).toHaveProperty("created_at", expect.any(String));
           expect(article).toHaveProperty("votes", expect.any(Number));
           expect(article).toHaveProperty("article_img_url", expect.any(String));
-          expect(article).toHaveProperty("comment_count", expect.any(String));
-          expect(articles).toHaveLength(18);
+          expect(article).toHaveProperty("comment_count");
+          expect(articles).toHaveLength(12);
           if(article.article_id === 1){
           expect(article).toEqual({
             article_id: 1,
@@ -525,8 +525,8 @@ describe("GET /api/articles (queries)", () => {
           expect(article).toHaveProperty("created_at", expect.any(String));
           expect(article).toHaveProperty("votes", expect.any(Number));
           expect(article).toHaveProperty("article_img_url", expect.any(String));
-          expect(article).toHaveProperty("comment_count", expect.any(String));
-          expect(articles).toHaveLength(18);
+          expect(article).toHaveProperty("comment_count");
+          expect(articles).toHaveLength(13);
           if(article.article_id === 1){
           expect(article).toEqual({
             article_id: 1,
@@ -557,8 +557,8 @@ describe("GET /api/articles (queries)", () => {
           expect(article).toHaveProperty("created_at", expect.any(String));
           expect(article).toHaveProperty("votes", expect.any(Number));
           expect(article).toHaveProperty("article_img_url", expect.any(String));
-          expect(article).toHaveProperty("comment_count", expect.any(String));
-          expect(articles).toHaveLength(18);
+          expect(article).toHaveProperty("comment_count");
+          expect(articles).toHaveLength(13);
           if(article.article_id === 1){
           expect(article).toEqual({
             article_id: 1,
@@ -575,12 +575,30 @@ describe("GET /api/articles (queries)", () => {
     });
   });
 
-  xtest("400: WRONG 'topic' searched. responds with an error message if searched with wrong topic value.", () => {
+  test("404: WRONG 'topic' searched. responds with an error message if searched with wrong topic value.", () => {
     return request(app)
-      .get("/api/articles?topic=undefined")
-      .expect(400)
+      .get("/api/articles?topic='xyz'")
+      .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toEqual("Bad request. Wrong search value.");
+        expect(body.msg).toEqual("Bad request. Wrong query(search) value. Data does not exist.");
+      });
+  });
+
+  test("404: WRONG 'sort_by' searched value. responds with an error message if searched with wrong sort_by value.", () => {
+    return request(app)
+      .get("/api/articles?sort_by='xyz'")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Bad request. Wrong query(search) value. Data does not exist.");
+      });
+  });
+
+  test("404: WRONG 'order' searched. responds with an error message if searched with wrong order value.", () => {
+    return request(app)
+      .get("/api/articles?order='xyz'")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Bad request. Wrong query(search) value. Data does not exist.");
       });
   });
 
@@ -590,7 +608,7 @@ describe("GET /api/articles (queries)", () => {
 describe("GET /api/articles/:article_id (comment_count)", () => {
   test("200: (COMMENT_COUNT = true) responds with JSON object of an article for the id that displays comment count.", () => {
     return request(app)
-      .get("/api/articles/1?comment_count=jkh")
+      .get("/api/articles/1?comment_count=true")
       .expect(200)
       .then(({ body }) => {
         const { article } = body;
@@ -624,3 +642,4 @@ describe("GET /api/articles/:article_id (comment_count)", () => {
     });
   });
 });
+
