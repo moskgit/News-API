@@ -479,7 +479,7 @@ describe("GET /api/users", () => {
 
 //11
 describe("GET /api/articles (queries)", () => {
-  test.only("200: (TOPIC) responds with JSON object of all articles filtered by a topic searched for.", () => {
+  test("200: (TOPIC) responds with JSON object of all articles filtered by a topic searched for.", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
       .expect(200)
