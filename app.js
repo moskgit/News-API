@@ -1,5 +1,5 @@
+const cors = require('cors')
 const express = require("express");
-
 const { getTopics, getApiEndPoints, getArticlesById, getArticles, getCommentsByArticleId, postComments, patchArticle, deleteComment, getUsers } = require('./controllers.js');
 const {
     handlePsqlErrors,
@@ -8,6 +8,8 @@ const {
 } = require('./errors');
 
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 
@@ -40,5 +42,6 @@ app.use(handleCustomErrors);
 app.use(handleServerErrors);
 
 //add .listen here to test locally.
+app.listen(8080, () => console.log(`Listening on 8080...`));
 
 module.exports = app;
