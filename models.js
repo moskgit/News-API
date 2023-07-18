@@ -168,5 +168,18 @@ function selectUsers(){
     });
 }
 
+//Tests to be written
+function selectUserByUsername(username) {
+    const regx = /[a-zA-z0-9]/
+    if(regx.test(username)){
+        return db.query(`SELECT * FROM users WHERE username = '${username}';`)
+        .then(({ rows }) => {
+            if (rows.length === 0) {
+                return Promise.reject({ status: 404, msg: "Record Not Found" });
+            }
+            return rows;
+        });
+    }
+}
 
-module.exports = { selectTopics, selectArticlesById, selectArticles, selectCommentsByArticleId, createComments, updateArticle, deletingComment, selectUsers };
+module.exports = { selectTopics, selectArticlesById, selectArticles, selectCommentsByArticleId, createComments, updateArticle, deletingComment, selectUsers, selectUserByUsername };

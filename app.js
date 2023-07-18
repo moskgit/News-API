@@ -1,6 +1,6 @@
 const cors = require('cors')
 const express = require("express");
-const { getTopics, getApiEndPoints, getArticlesById, getArticles, getCommentsByArticleId, postComments, patchArticle, deleteComment, getUsers } = require('./controllers.js');
+const { getTopics, getApiEndPoints, getArticlesById, getArticles, getCommentsByArticleId, postComments, patchArticle, deleteComment, getUsers, getUserByUsername } = require('./controllers.js');
 const {
     handlePsqlErrors,
     handleCustomErrors,
@@ -33,6 +33,8 @@ app.delete('/api/comments/:comment_id', deleteComment);
 
 app.get('/api/users', getUsers);
 
+app.get('/api/users/:username', getUserByUsername);
+
 app.all('*', (_, res) => {
     res.status(400).send({msg:"Bad request. Please check what you're requesting and try again."});
 })
@@ -41,7 +43,7 @@ app.use(handlePsqlErrors);
 app.use(handleCustomErrors);
 app.use(handleServerErrors);
 
-//add .listen here to test locally.
-app.listen(8080, () => console.log(`Listening on 8080...`));
+//add .listen is placed here to be used by the develooper.
+// app.listen(8080, () => console.log(`Listening on 8080...`));
 
 module.exports = app;

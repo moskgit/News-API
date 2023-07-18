@@ -1,6 +1,6 @@
-const { selectTopics, selectArticlesById, selectArticles, selectCommentsByArticleId, createComments, updateArticle, deletingComment, selectUsers } = require('./models');
+const { selectTopics, selectArticlesById, selectArticles, selectCommentsByArticleId, createComments, updateArticle, deletingComment, selectUsers, selectUserByUsername } = require('./models');
 const endpointsFile = require('./endpoints.json');
-const { describeAtricleById, describeCommentsById, describePostingCommentsById, describeUpdatingArticlesById, describeDeletingCommentsById, describeGetApiUsers, describeGetApiArticlesQueries } = require('./writeDescriptions');
+const { describeAtricleById, describeCommentsById, describePostingCommentsById, describeUpdatingArticlesById, describeDeletingCommentsById, describeGetApiArticlesQueries, describeGetApiUsers, describeUserByUsername } = require('./writeDescriptions');
 
 const getTopics = (req, res, next) => {
     selectTopics()
@@ -99,4 +99,14 @@ const getUsers = (req, res, next) => {
     .catch(next);
 }
 
-module.exports = {getTopics, getApiEndPoints, getArticlesById, getArticles, getCommentsByArticleId, postComments, patchArticle, deleteComment, getUsers};
+const getUserByUsername = (req, res, next) => {
+    const {username} = req.params;
+    selectUserByUsername(username)
+    .then((user) => {
+        describeUserByUsername();
+        res.status(200).send({user});
+    })
+    .catch(next);
+}
+
+module.exports = {getTopics, getApiEndPoints, getArticlesById, getArticles, getCommentsByArticleId, postComments, patchArticle, deleteComment, getUsers, getUserByUsername};

@@ -167,4 +167,25 @@ function describeGetApiArticlesQueries(){
     })
 }
 
-module.exports = {describeAtricleById, describeCommentsById, describePostingCommentsById, describeUpdatingArticlesById, describeDeletingCommentsById, describeGetApiUsers, describeGetApiArticlesQueries}
+
+function describeUserByUsername() {
+    fs.readFile('./endpoints.json', 'utf-8')
+    .then((contents)=>{
+        contents = JSON.parse(contents);
+        contents["GET /api/users/:username"] = {
+            "description": "serves the requested user searched by the username.",
+            "queries": [],
+            "exampleResponse": {
+            "user":[{
+                username: 'cooljmessy',
+                name: 'Peter Messy',
+                avatar_url: 'https://vignette.wikia.nocookie.net/mrmen/images/1/1a/MR_MESSY_4A.jpg/revision/latest/scale-to-width-down/250?cb=20170730171002'
+              }]
+            }
+        }
+        fs.writeFile('./endpoints.json', JSON.stringify(contents));
+    })
+}
+
+
+module.exports = {describeAtricleById, describeCommentsById, describePostingCommentsById, describeUpdatingArticlesById, describeDeletingCommentsById, describeGetApiUsers, describeGetApiArticlesQueries, describeUserByUsername}
